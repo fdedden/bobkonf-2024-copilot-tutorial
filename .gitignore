@@ -1,1 +1,5 @@
 *.swp
+*.o
+exercises/uav/uav
+exercises/uav/uav-monitor.[ch]
+exercises/uav/uav-monitor_types.h
