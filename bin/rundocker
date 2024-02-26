@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# A wrapper script for running executables inside the docker container.
+
+set -e
+
+IMAGE=bobkonf-2024-copilot-tutorial
+
+COMMAND=$@
+
+docker run \
+  --mount type=bind,source="$(pwd)"/exercises/,target=/share/exercises \
+  ${IMAGE} \
+  ${COMMAND}
