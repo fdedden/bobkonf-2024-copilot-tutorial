@@ -83,7 +83,8 @@ altitudeVoted = 0
 
 -- [Exercise]
 -- Still using majority voting, determine if the value of `altitudeVoted` is
--- trustworthy, i.e. can we rely the reading?
+-- trustworthy, i.e. does the selected value (by altitudeVoted) hold for at
+-- least 50% of the 3 altimeters (at least 2 out of 3 in this case).
 altitudeVoted_trustworthy :: Stream Bool
 altitudeVoted_trustworthy = false
 
