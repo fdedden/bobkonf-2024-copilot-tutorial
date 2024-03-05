@@ -38,7 +38,9 @@ daltitudeAvg_dt = deriv altitudeAvg time
 
 
 -- [Exercise]
--- Calculate the derivative of a stream of doubles over another one.
+-- Calculate the derivative of a stream of doubles over another one, i.e:
+-- (current x - previous x) / (current y - previous y)
+-- Hint: use (++).
 deriv :: Stream Double -> Stream Double -> Stream Double
 deriv sx sy = 0
 
