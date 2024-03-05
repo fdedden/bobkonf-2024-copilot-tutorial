@@ -28,6 +28,12 @@ altimeter2 = extern "altimeter2" Nothing
 -- get our real altitude.
 -- For this exercise let us rely on just taking the average over the three
 -- altimeters.
+--
+-- Check expected result in simulation output:
+-- altAvg ~> {0.038, 0.151, 0.339, 0.603, 0.942, 1.356, 1.846, 2.411, ...}
+--
+-- @ time:3.157   ->  altAvg:20.219
+-- @ time:3.431   ->  altAvg:10.246
 altitudeAvg :: Stream Double
 altitudeAvg = 0
 
@@ -41,6 +47,12 @@ daltitudeAvg_dt = deriv altitudeAvg time
 -- Calculate the derivative of a stream of doubles over another one, i.e:
 -- (current x - previous x) / (current y - previous y)
 -- Hint: use (++).
+--
+-- Check expected result in simulation output:
+-- davg ~> {0.274, 0.823, 1.372, 1.922, 2.471, 3.019, 3.568, 4.117, ...}
+--
+-- @ time:3.157   ->  davg:78.695
+-- @ time:3.431   ->  davg:-77.938
 deriv :: Stream Double -> Stream Double -> Stream Double
 deriv sx sy = 0
 
@@ -79,6 +91,12 @@ approx l r = false
 
 -- [Exercise]
 -- Using majority voting, calculate the most common value of the altimeters.
+--
+-- Check expected result in simulation output:
+-- altVoted ~> {0.038, 0.151, 0.339, 0.603, 0.942, 1.356, 1.846, 2.411, ...}
+--
+-- @ time:5.628   ->  altVoted:-15.660
+-- @ time:5.765   ->  altVoted:-16.730
 altitudeVoted :: Stream Double
 altitudeVoted = 0
 
@@ -86,6 +104,13 @@ altitudeVoted = 0
 -- Still using majority voting, determine if the value of `altitudeVoted` is
 -- trustworthy, i.e. does the selected value (by altitudeVoted) hold for at
 -- least 50% of the 3 altimeters (at least 2 out of 3 in this case).
+--
+-- Check expected result in simulation output:
+-- dvoted ~> {0.274, 0.823, 1.372, 1.922, 2.471, 3.019, 3.568, 4.117, ...}
+-- trustw ~> {yes, yes, yes, yes, yes, yes, yes, yes, ...}
+--
+-- @ time:5.628   ->  trustw:no
+-- @ time:5.765   ->  trustw:no
 altitudeVoted_trustworthy :: Stream Bool
 altitudeVoted_trustworthy = false
 
