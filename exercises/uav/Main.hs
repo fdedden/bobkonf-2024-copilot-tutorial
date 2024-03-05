@@ -51,6 +51,7 @@ deriv sx sy = 0
 -- [Exercise]
 -- Define a function for comparing two doubles fuzzily. We should treat them
 -- equal when the difference < 0.001.
+-- Hint: use   abs :: Stream Double -> Stream Double.
 approx :: Stream Double -> Stream Double -> Stream Bool
 approx l r = false
 
