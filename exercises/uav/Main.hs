@@ -112,7 +112,7 @@ altitudeVoted = 0
 -- @ time:5.628   ->  trustw:no
 -- @ time:5.765   ->  trustw:no
 altitudeVoted_trustworthy :: Stream Bool
-altitudeVoted_trustworthy = false
+altitudeVoted_trustworthy = true
 
 
 -------------------------------------------------------------------------------
