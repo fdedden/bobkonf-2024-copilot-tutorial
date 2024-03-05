@@ -32,15 +32,15 @@ altitudeAvg :: Stream Double
 altitudeAvg = 0
 
 
+-- The derivative of average altitude over time.
+daltitudeAvg_dt :: Stream Double
+daltitudeAvg_dt = deriv altitudeAvg time
+
+
 -- [Exercise]
 -- Calculate the derivative of a stream of doubles over another one.
 deriv :: Stream Double -> Stream Double -> Stream Double
 deriv sx sy = 0
-
-
--- The derivative of average altitude over time.
-daltitudeAvg_dt :: Stream Double
-daltitudeAvg_dt = deriv altitudeAvg time
 
 
 -------------------------------------------------------------------------------
