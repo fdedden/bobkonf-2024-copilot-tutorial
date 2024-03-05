@@ -51,8 +51,8 @@ deriv sx sy = 0
 -- [Exercise]
 -- Define a function for comparing two doubles fuzzily. We should treat them
 -- equal when the difference < 0.001.
-(~=) :: Stream Double -> Stream Double -> Stream Bool
-l ~= r = false
+approx :: Stream Double -> Stream Double -> Stream Bool
+approx l r = false
 
 
 -- In contrast to `altitudeAvg` (which can not deal with erratic behaviour of
