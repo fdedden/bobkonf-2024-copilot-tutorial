@@ -1,0 +1,168 @@
+{-# LANGUAGE RebindableSyntax #-}
+
+module Main where
+
+import Language.Copilot
+import Copilot.Compile.C99 (compile)
+
+import Voting
+
+-- The time since boot in seconds.
+time :: Stream Double
+time = extern "uptime" Nothing
+
+-- 3-tuple of altimeter readings as provided by the airplane.
+-- For the sake of simplicity, these all provide the elevation in meters above
+-- sea-level.
+altimeter0, altimeter1, altimeter2 :: Stream Double
+altimeter0 = extern "altimeter0" Nothing
+altimeter1 = extern "altimeter1" Nothing
+altimeter2 = extern "altimeter2" Nothing
+
+
+-------------------------------------------------------------------------------
+
+
+-- [Exercise]
+-- As we have multiple altimeters, we want to filter the input for outliers to
+-- get our real altitude.
+-- For this exercise let us rely on just taking the average over the three
+-- altimeters.
+--
+-- Check expected result in simulation output:
+-- altAvg ~> {0.038, 0.151, 0.339, 0.603, 0.942, 1.356, 1.846, 2.411, ...}
+--
+-- @ time:3.157   ->  altAvg:20.219
+-- @ time:3.431   ->  altAvg:10.246
+altitudeAvg :: Stream Double
+altitudeAvg = (altimeter0 + altimeter1 + altimeter2) / 3
+
+
+-- The derivative of average altitude over time.
+daltitudeAvg_dt :: Stream Double
+daltitudeAvg_dt = deriv altitudeAvg time
+
+
+-- [Exercise]
+-- Calculate the derivative of a stream of doubles over another one, i.e:
+-- (current x - previous x) / (current y - previous y)
+-- Hint: use (++).
+--
+-- Check expected result in simulation output:
+-- davg ~> {0.274, 0.823, 1.372, 1.922, 2.471, 3.019, 3.568, 4.117, ...}
+--
+-- @ time:3.157   ->  davg:78.695
+-- @ time:3.431   ->  davg:-77.938
+deriv :: Stream Double -> Stream Double -> Stream Double
+deriv sx sy = dx / dy
+  where
+    dx = sx - prevsx
+    dy = sy - prevsy
+
+    prevsx = [0] ++ sx
+    prevsy = [0] ++ sy
+
+
+-------------------------------------------------------------------------------
+
+
+-- [Exercise]
+-- Define a function for comparing two doubles fuzzily. We should treat them
+-- equal when the difference < 0.001.
+-- Hint: use   abs :: Stream Double -> Stream Double.
+approx :: Stream Double -> Stream Double -> Stream Bool
+approx l r = abs (l - r) < 0.001
+
+
+-- In contrast to `altitudeAvg` (which can not deal with erratic behaviour of
+-- a faulty sensor properly), we want a reliable way to determine the current
+-- altitude.  To achieve this, we will use majority voting:
+-- https://en.wikipedia.org/wiki/Boyer-Moore_majority_vote_algorithm
+--
+-- In the voting library there are two functions:
+-- majorityWith
+--  => (Stream a -> Stream a -> Stream Bool) -- ^ Comparison function
+--  -> [Stream a]                            -- ^ Vote streams
+--  -> Stream a                              -- ^ Result: Candidate stream
+--
+-- aMajorityWith ::
+--  => (Stream a -> Stream a -> Stream Bool) -- ^ Comparison function
+--  -> [Stream a]                            -- ^ Vote streams
+--  -> Stream a                              -- ^ Candidate stream
+--  -> Stream Bool                -- ^ Result: True if candidate holds majority
+--
+--  `majorityWith` finds the most common value, `aMajorityWith` checks if this
+--  value holds a majority in the list of values. Both functions take a
+--  function to use for comparison.
+
+-- [Exercise]
+-- Using majority voting, calculate the most common value of the altimeters.
+--
+-- Check expected result in simulation output:
+-- altVoted ~> {0.038, 0.151, 0.339, 0.603, 0.942, 1.356, 1.846, 2.411, ...}
+--
+-- @ time:5.628   ->  altVoted:-15.660
+-- @ time:5.765   ->  altVoted:-16.730
+altitudeVoted :: Stream Double
+altitudeVoted = majorityWith approx alts
+  where
+    alts = [altimeter0, altimeter1, altimeter2]
+
+
+-- [Exercise]
+-- Still using majority voting, determine if the value of `altitudeVoted` is
+-- trustworthy, i.e. does the selected value (by altitudeVoted) hold for at
+-- least 50% of the 3 altimeters (at least 2 out of 3 in this case).
+--
+-- Check expected result in simulation output:
+-- dvoted ~> {0.274, 0.823, 1.372, 1.922, 2.471, 3.019, 3.568, 4.117, ...}
+-- trustw ~> {yes, yes, yes, yes, yes, yes, yes, yes, ...}
+--
+-- @ time:5.628   ->  trustw:no
+-- @ time:5.765   ->  trustw:no
+altitudeVoted_trustworthy :: Stream Bool
+altitudeVoted_trustworthy = aMajorityWith approx alts altitudeVoted
+  where
+    alts = [altimeter0, altimeter1, altimeter2]
+
+
+-------------------------------------------------------------------------------
+
+
+-- The derivative of voted altitude over time.
+daltitudeVoted_dt :: Stream Double
+daltitudeVoted_dt = deriv altitudeVoted time
+
+
+-- Property that checks if the altitude does not change abruptly. In this case
+-- it should stay < 15 m/s^2 in either direction.
+isStable :: (Num a, Ord a, Typed a) => Stream a -> Stream Bool
+isStable sx = abs sx < 15
+
+
+spec :: Spec
+spec = do
+  -- Just trigger that helps us debug things.
+  trigger "debug" true
+    [ arg time
+
+    , arg altitudeAvg
+    , arg daltitudeAvg_dt
+
+    , arg altitudeVoted
+    , arg daltitudeVoted_dt
+    , arg altitudeVoted_trustworthy
+    ]
+
+  -- Some local definitions to make the triggers easier to read.
+  let avg_violated   = not (isStable daltitudeAvg_dt)
+      voted_violated = not (isStable daltitudeVoted_dt)
+
+  trigger "avg_violated"   avg_violated   [arg daltitudeAvg_dt]
+  trigger "voted_violated" voted_violated [arg daltitudeVoted_dt]
+
+  trigger "voted_not_trustworthy" (not altitudeVoted_trustworthy) []
+
+
+-- Compile the specification to with output name 'uav-monitor'.
+main = reify spec >>= compile "uav-monitor"
