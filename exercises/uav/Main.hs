@@ -86,12 +86,12 @@ altitudeVoted_trustworthy :: Stream Bool
 altitudeVoted_trustworthy = false
 
 
+-------------------------------------------------------------------------------
+
+
 -- The derivative of voted altitude over time.
 daltitudeVoted_dt :: Stream Double
 daltitudeVoted_dt = deriv altitudeVoted time
-
-
--------------------------------------------------------------------------------
 
 
 -- Property that checks if the altitude does not change abruptly. In this case
