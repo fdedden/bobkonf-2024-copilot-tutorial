@@ -7,7 +7,7 @@ import Copilot.Compile.C99 (compile)
 
 import Voting
 
--- The time since boot.
+-- The time since boot in seconds.
 time :: Stream Double
 time = extern "uptime" Nothing
 
