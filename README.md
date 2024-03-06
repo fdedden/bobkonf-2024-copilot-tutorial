@@ -15,6 +15,11 @@ This repository contains a number of files and directories:
 ├── Dockerfile
 ├── Makefile
 ├── README
+├── answers
+│   ├── trueFalse
+│   │   └── Main.hs
+│   └── uav
+│       └── Main.hs
 ├── bin
 │   └── rundocker
 └── exercises
@@ -35,6 +40,7 @@ The interesting files are:
 
 - `Dockerfile`: defines the Docker image that we will be using.
 - `Makefile`: helps us build the Docker image.
+- `answers/`: The answers to the exercises.
 - `bin/rundocker`: A wrapper script for running things inside Docker.
 - `exercises/`: Directory containing exercises. Each exercises has its own
   subdirectory and a `run.sh` script for running it.
