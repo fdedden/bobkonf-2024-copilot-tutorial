@@ -62,7 +62,7 @@ For example, to run the `trueFalse` exercise one can:
 $ bin/rundocker exercises/truefalse/run.sh
 ```
 
-Eventhough the `uav` example is more complicated (it contains some C code and a
+Even though the `uav` example is more complicated (it contains some C code and a
 Makefile), one can also simply rely on `run.sh` to build and run the exercise.
 
 ```sh
