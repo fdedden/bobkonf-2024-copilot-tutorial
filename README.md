@@ -59,12 +59,12 @@ script must be ran inside Docker using `bin/rundocker`
 For example, to run the `trueFalse` exercise one can:
 
 ```sh
-$ bin/rundocker exercies/truefalse/run.sh
+$ bin/rundocker exercises/truefalse/run.sh
 ```
 
 Eventhough the `uav` example is more complicated (it contains some C code and a
 Makefile), one can also simply rely on `run.sh` to build and run the exercise.
 
 ```sh
-$ bin/rundocker exercies/uav/run.sh
+$ bin/rundocker exercises/uav/run.sh
 ```
